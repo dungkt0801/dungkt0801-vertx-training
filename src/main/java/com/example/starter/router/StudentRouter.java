@@ -19,6 +19,7 @@ public class StudentRouter {
     studentRouter.route("/api/v1/students*").handler(BodyHandler.create());
     studentRouter.get("/api/v1/students").handler(studentHandler::getAll);
     studentRouter.get("/api/v1/students/:id").handler(studentHandler::getById);
+    studentRouter.post("/api/v1/students").handler(studentHandler::insert);
 
     return studentRouter;
   }

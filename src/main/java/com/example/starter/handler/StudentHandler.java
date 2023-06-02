@@ -1,5 +1,6 @@
 package com.example.starter.handler;
 
+import com.example.starter.model.Student;
 import com.example.starter.service.StudentService;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -33,6 +34,20 @@ public class StudentHandler {
           onErrorResponse(routingContext, 400, ar.cause());
         }
       });
+  }
+
+  public void insert(RoutingContext routingContext) {
+    if(routingContext.body() != null) {
+      Student student = routingContext.body().asJsonObject().mapTo(Student.class);
+      studentService.insert(student)
+        .onComplete(ar -> {
+          if(ar.succeeded()) {
+            onSuccessResponse(routingContext, 200, ar.result());
+          } else {
+            onErrorResponse(routingContext, 400, ar.cause());
+          }
+        });
+    }
   }
 
   private void onSuccessResponse(RoutingContext rc, int status, Object object) {

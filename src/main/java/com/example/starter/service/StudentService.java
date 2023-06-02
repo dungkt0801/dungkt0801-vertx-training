@@ -20,4 +20,8 @@ public class StudentService {
     return studentRepository.getById(id);
   }
 
+  public Future<Student> insert(Student student) {
+    return studentRepository.insert(student);
+  }
+
 }

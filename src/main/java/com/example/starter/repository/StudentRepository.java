@@ -47,9 +47,12 @@ public class StudentRepository {
 
   public Future<Student> insert(Student student) {
     Promise<Student> promise = Promise.promise();
-    return client.insert(COLLECTION_NAME, student)
+    return client.insert(COLLECTION_NAME, JsonObject.mapFrom(student))
       .flatMap(result -> {
         final JsonObject jsonObject = new JsonObject().put("_id", result);
+        final Student insertedStudent = new Student(jsonObject);
+        promise.complete(insertedStudent);
+        return promise.future();
       });
   }
 
