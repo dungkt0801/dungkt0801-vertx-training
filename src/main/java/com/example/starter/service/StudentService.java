@@ -20,8 +20,16 @@ public class StudentService {
     return studentRepository.getById(id);
   }
 
-  public Future<Student> insert(Student student) {
+  public Future<Student> insertOne(Student student) {
     return studentRepository.insert(student);
+  }
+
+  public Future<String> updateOne(String id, Student student) {
+    return studentRepository.update(id, student);
+  }
+
+  public Future<String> deleteOne(String id) {
+    return studentRepository.delete(id);
   }
 
 }

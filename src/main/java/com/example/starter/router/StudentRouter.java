@@ -19,7 +19,9 @@ public class StudentRouter {
     studentRouter.route("/api/v1/students*").handler(BodyHandler.create());
     studentRouter.get("/api/v1/students").handler(studentHandler::getAll);
     studentRouter.get("/api/v1/students/:id").handler(studentHandler::getById);
-    studentRouter.post("/api/v1/students").handler(studentHandler::insert);
+    studentRouter.post("/api/v1/students").handler(studentHandler::insertOne);
+    studentRouter.put("/api/v1/students/:id").handler(studentHandler::updateOne);
+    studentRouter.delete("/api/v1/students/:id").handler(studentHandler::deleteOne);
 
     return studentRouter;
   }

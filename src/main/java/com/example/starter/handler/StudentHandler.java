@@ -4,7 +4,6 @@ import com.example.starter.model.Student;
 import com.example.starter.service.StudentService;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-
 import io.vertx.ext.web.RoutingContext;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +24,7 @@ public class StudentHandler {
   }
 
   public void getById(RoutingContext routingContext) {
-    String id = routingContext.pathParam("id");
+    final String id = routingContext.pathParam("id");
     studentService.getById(id)
       .onComplete(ar -> {
         if(ar.succeeded()) {
@@ -36,10 +35,10 @@ public class StudentHandler {
       });
   }
 
-  public void insert(RoutingContext routingContext) {
+  public void insertOne(RoutingContext routingContext) {
     if(routingContext.body() != null) {
-      Student student = routingContext.body().asJsonObject().mapTo(Student.class);
-      studentService.insert(student)
+      final Student student = routingContext.body().asJsonObject().mapTo(Student.class);
+      studentService.insertOne(student)
         .onComplete(ar -> {
           if(ar.succeeded()) {
             onSuccessResponse(routingContext, 200, ar.result());
@@ -50,10 +49,39 @@ public class StudentHandler {
     }
   }
 
+  public void updateOne(RoutingContext routingContext) {
+    if(routingContext.body() != null) {
+      final  String id = routingContext.pathParam("id");
+      final Student student = routingContext.body().asJsonObject().mapTo(Student.class);
+      studentService.updateOne(id, student)
+        .onComplete(ar -> {
+          if(ar.succeeded()) {
+            onSuccessResponse(routingContext, 200, ar.result());
+          } else {
+            onErrorResponse(routingContext, 400, ar.cause());
+          }
+        });
+    }
+  }
+
+  public void deleteOne(RoutingContext routingContext) {
+    final String id = routingContext.pathParam("id");
+    studentService.deleteOne(id)
+      .onComplete(ar -> {
+        if(ar.succeeded()) {
+          onSuccessResponse(routingContext, 200, ar.result());
+        } else {
+          onErrorResponse(routingContext, 400, ar.cause());
+        }
+      });
+  }
+
   private void onSuccessResponse(RoutingContext rc, int status, Object object) {
     rc.response()
       .setStatusCode(status)
       .putHeader("Content-Type", "application/json")
+      .putHeader("Cache-Control", "no-store")
+      .putHeader("Pragma", "no-cache")
       .end(Json.encodePrettily(object));
   }
 
@@ -63,6 +91,8 @@ public class StudentHandler {
     rc.response()
       .setStatusCode(status)
       .putHeader("Content-Type", "application/json")
+      .putHeader("Cache-Control", "no-store")
+      .putHeader("Pragma", "no-cache")
       .end(Json.encodePrettily(error));
   }
 

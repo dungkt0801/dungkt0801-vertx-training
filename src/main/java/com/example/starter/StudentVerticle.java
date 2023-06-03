@@ -28,12 +28,12 @@ public class StudentVerticle extends AbstractVerticle {
       .flatMap(configurations -> {
         final MongoClient client = createMongoClient(vertx, configurations);
 
-        final StudentRepository bookRepository = new StudentRepository(client);
-        final StudentService bookService = new StudentService(bookRepository);
-        final StudentHandler bookHandler = new StudentHandler(bookService);
-        final StudentRouter bookRouter = new StudentRouter(vertx, bookHandler);
+        final StudentRepository studentRepository = new StudentRepository(client);
+        final StudentService studentService = new StudentService(studentRepository);
+        final StudentHandler studentHandler = new StudentHandler(studentService);
+        final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
 
-        return createHttpServer(bookRouter.getRouter(), configurations);
+        return createHttpServer(studentRouter.getRouter(), configurations);
       })
       .onComplete(ar -> {
           if(ar.succeeded()) {
