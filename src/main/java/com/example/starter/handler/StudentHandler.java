@@ -80,8 +80,6 @@ public class StudentHandler {
     rc.response()
       .setStatusCode(status)
       .putHeader("Content-Type", "application/json")
-      .putHeader("Cache-Control", "no-store")
-      .putHeader("Pragma", "no-cache")
       .end(Json.encodePrettily(object));
   }
 
@@ -91,8 +89,6 @@ public class StudentHandler {
     rc.response()
       .setStatusCode(status)
       .putHeader("Content-Type", "application/json")
-      .putHeader("Cache-Control", "no-store")
-      .putHeader("Pragma", "no-cache")
       .end(Json.encodePrettily(error));
   }
 

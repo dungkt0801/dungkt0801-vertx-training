@@ -2,7 +2,9 @@ package com.example.starter.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.vertx.core.json.JsonObject;
+import java.util.Date;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,20 +12,29 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Student {
 
-  private String _id;
+  private String id;
 
   private String name;
 
+  private Date birthDay;
+
   public Student(JsonObject jsonObject) {
-    // _id
     String idString = jsonObject.getString("_id");
     JsonObject idJson = new JsonObject(idString);
-    this._id = idJson.getString("$oid");
+    this.id = idJson.getString("$oid");
 
-    // name
-    this.name = jsonObject.getString("name");
+    String name = jsonObject.getString("name");
+    if(name != null) {
+      this.name = jsonObject.getString("name");
+    }
+
+    String birthDayTimestampStr = jsonObject.getString("birthDay");
+    if(birthDayTimestampStr != null) {
+      this.birthDay = new Date(Long.parseLong(birthDayTimestampStr));
+    }
   }
 
 }
