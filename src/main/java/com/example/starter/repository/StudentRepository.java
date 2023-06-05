@@ -18,16 +18,16 @@ public class StudentRepository {
 
   private final MongoClient mongoClient;
 
-  public Future<List<Student>> findAll() {
+  public Future<List<Student>> findAll(JsonObject query) {
     Future<List<Student>> future = Future.future();
 
-    JsonObject query = new JsonObject();
     mongoClient.find("students", query, res -> {
       if (res.succeeded()) {
-        List<Student> students = res.result().stream()
-          .map(json -> new Student(json))
-          .collect(Collectors.toList());
-        future.complete(students);
+        future.complete(
+          res.result().stream()
+            .map(Student::new)
+            .collect(Collectors.toList())
+        );
       } else {
         future.fail(res.cause());
       }
@@ -42,8 +42,7 @@ public class StudentRepository {
 
     mongoClient.findOne(COLLECTION_NAME, query, null, result -> {
       if(result.result() != null) {
-        final Student student = new Student(result.result());
-        future.complete(student);
+        future.complete(new Student(result.result()));
       } else {
         future.fail(new NoSuchElementException("No student with id " + id));
       }
@@ -59,8 +58,7 @@ public class StudentRepository {
       .put("_id", new JsonObject().put("$oid", new ObjectId().toString()));
 
     mongoClient.insert(COLLECTION_NAME, studentJson ,result -> {
-      final Student insertedStudent = new Student(studentJson);
-      future.complete(insertedStudent);
+      future.complete(new Student(studentJson));
 
     });
 

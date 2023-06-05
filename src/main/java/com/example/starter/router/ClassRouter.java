@@ -18,6 +18,7 @@ public class ClassRouter {
 
     classRouter.route("/api/v1/classes*").handler(BodyHandler.create());
     classRouter.get("/api/v1/classes").handler(classHandler::findAll);
+    classRouter.get("/api/v1/classes/:id").handler(classHandler::findById);
 
     return classRouter;
   }

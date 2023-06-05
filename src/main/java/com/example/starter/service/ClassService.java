@@ -15,4 +15,8 @@ public class ClassService {
     return classRepository.findAll();
   }
 
+  public Future<Class> findById(String id) {
+    return classRepository.findById(id);
+  }
+
 }

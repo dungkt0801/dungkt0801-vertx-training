@@ -4,6 +4,8 @@ import com.example.starter.model.Student;
 import com.example.starter.service.StudentService;
 import com.example.starter.util.StudentUtil;
 import com.example.starter.util.Util;
+import io.vertx.core.MultiMap;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,7 @@ public class StudentHandler {
   private final StudentService studentService;
 
   public void findAll(RoutingContext rc) {
-    studentService.findAll()
+    studentService.findAll(buildQueryParams(rc))
       .setHandler(ar -> {
         if(ar.succeeded()) {
           Util.onSuccessResponse(rc, 200, ar.result());
@@ -24,63 +26,75 @@ public class StudentHandler {
       });
   }
 
-  public void findById(RoutingContext routingContext) {
-    final String id = routingContext.pathParam("id");
+  public void findById(RoutingContext rc) {
+    final String id = rc.pathParam("id");
     if(Util.isValidObjectId(id)) {
       studentService.findById(id)
         .setHandler(ar -> {
           if(ar.succeeded()) {
-            Util.onSuccessResponse(routingContext, 200, ar.result());
+            Util.onSuccessResponse(rc, 200, ar.result());
           } else {
-            Util.onErrorResponse(routingContext, 400, ar.cause());
+            Util.onErrorResponse(rc, 400, ar.cause());
           }
         });
     } else {
-      Util.onErrorResponse(routingContext, 400, new NoSuchElementException("Invalid id"));
+      Util.onErrorResponse(rc, 400, new NoSuchElementException("Invalid id"));
     }
   }
 
-  public void insertOne(RoutingContext routingContext) {
-    if(routingContext.getBodyAsJson() != null) {
-      final Student student = StudentUtil.studentFromJsonObject(routingContext.getBodyAsJson());
+  public void insertOne(RoutingContext rc) {
+    if(rc.getBodyAsJson() != null) {
+      final Student student = StudentUtil.studentFromJsonObject(rc.getBodyAsJson());
       studentService.insertOne(student)
         .setHandler(ar -> {
           if(ar.succeeded()) {
-            Util.onSuccessResponse(routingContext, 200, ar.result());
+            Util.onSuccessResponse(rc, 200, ar.result());
           } else {
-            Util.onErrorResponse(routingContext, 400, ar.cause());
+            Util.onErrorResponse(rc, 400, ar.cause());
           }
         });
     } else {
-      Util.onErrorResponse(routingContext, 400, new IllegalArgumentException("Request body is empty"));
+      Util.onErrorResponse(rc, 400, new IllegalArgumentException("Request body is empty"));
     }
   }
 
-  public void updateOne(RoutingContext routingContext) {
-    if(routingContext.getBodyAsJson() != null) {
-      final  String id = routingContext.pathParam("id");
-      final Student student = StudentUtil.studentFromJsonObject(routingContext.getBodyAsJson());
+  public void updateOne(RoutingContext rc) {
+    if(rc.getBodyAsJson() != null) {
+      final  String id = rc.pathParam("id");
+      final Student student = StudentUtil.studentFromJsonObject(rc.getBodyAsJson());
       studentService.updateOne(id, student)
         .setHandler(ar -> {
           if(ar.succeeded()) {
-            Util.onSuccessResponse(routingContext, 200, ar.result());
+            Util.onSuccessResponse(rc, 200, ar.result());
           } else {
-            Util.onErrorResponse(routingContext, 400, ar.cause());
+            Util.onErrorResponse(rc, 400, ar.cause());
           }
         });
     }
   }
 
-  public void deleteOne(RoutingContext routingContext) {
-    final String id = routingContext.pathParam("id");
+  public void deleteOne(RoutingContext rc) {
+    final String id = rc.pathParam("id");
     studentService.deleteOne(id)
       .setHandler(ar -> {
         if(ar.succeeded()) {
-          Util.onSuccessResponse(routingContext, 200, ar.result());
+          Util.onSuccessResponse(rc, 200, ar.result());
         } else {
-          Util.onErrorResponse(routingContext, 400, ar.cause());
+          Util.onErrorResponse(rc, 400, ar.cause());
         }
       });
+  }
+
+  private JsonObject buildQueryParams(RoutingContext rc) {
+    MultiMap queryParams = rc.request().params();
+    JsonObject query = new JsonObject();
+
+    String name = queryParams.get("name");
+    if(name != null && !name.isEmpty()) {
+      query.put("name", new JsonObject().put("$regex", name));
+    }
+
+    return query;
   }
 
 }

@@ -20,4 +20,16 @@ public class ClassHandler {
     });
   }
 
+  public void findById(RoutingContext rc) {
+    final String id = rc.pathParam("id");
+    classService.findById(id)
+      .setHandler(ar -> {
+        if (ar.succeeded()) {
+          Util.onSuccessResponse(rc, 200, ar.result());
+        } else {
+          Util.onErrorResponse(rc, 400, ar.cause());
+        }
+      });
+  }
+
 }

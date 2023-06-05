@@ -19,6 +19,8 @@ public class Class {
 
   private String id;
 
+  private String className;
+
   private Long numberOfStudents;
 
   public Class(JsonObject jsonObject) {
@@ -26,8 +28,17 @@ public class Class {
     JsonObject idObject = jsonObject.getJsonObject("_id");
     this.id = idObject.getString("$oid");
 
+    // className
+    String className = jsonObject.getString("className");
+    if(className != null && !className.isEmpty()) {
+      this.className = className;
+    }
+
     // numberOfStudents
-    this.numberOfStudents = jsonObject.getLong("numberOfStudents");
+    Long numberOfStudents = jsonObject.getLong("numberOfStudents");
+    if(numberOfStudents != null && numberOfStudents >= 0) {
+      this.numberOfStudents = jsonObject.getLong("numberOfStudents");
+    }
   }
 
 }

@@ -2,8 +2,8 @@ package com.example.starter.service;
 
 import com.example.starter.model.Student;
 import com.example.starter.repository.StudentRepository;
-
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -12,10 +12,9 @@ public class StudentService {
 
   private final StudentRepository studentRepository;
 
-  public Future<List<Student>> findAll() {
-    return studentRepository.findAll();
+  public Future<List<Student>> findAll(JsonObject query) {
+    return studentRepository.findAll(query);
   }
-
   public Future<Student> findById(String id) {
     return studentRepository.findById(id);
   }
