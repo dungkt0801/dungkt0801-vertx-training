@@ -21,10 +21,12 @@ public class Student {
 
   private Date birthDay;
 
+  private String classId;
+
   public Student(JsonObject jsonObject) {
+
     String idString = jsonObject.getString("_id");
-    JsonObject idJson = new JsonObject(idString);
-    this.id = idJson.getString("$oid");
+    this.id = new JsonObject(idString).getString("$oid");
 
     String name = jsonObject.getString("name");
     if(name != null) {
@@ -34,6 +36,14 @@ public class Student {
     String birthDayTimestampStr = jsonObject.getString("birthDay");
     if(birthDayTimestampStr != null) {
       this.birthDay = new Date(Long.parseLong(birthDayTimestampStr));
+    }
+
+    String classId = jsonObject.getString("classId");
+    if(classId != null) {
+      JsonObject classIdJson = new JsonObject(classId);
+      this.classId = classIdJson.getString("$oid");
+    } else {
+      this.classId = null;
     }
   }
 

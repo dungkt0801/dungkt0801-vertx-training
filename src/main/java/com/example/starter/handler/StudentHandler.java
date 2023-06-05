@@ -12,8 +12,8 @@ public class StudentHandler {
 
   private final StudentService studentService;
 
-  public void getAll(RoutingContext routingContext) {
-    studentService.getAll()
+  public void findAll(RoutingContext routingContext) {
+    studentService.findAll()
       .onComplete(ar -> {
         if(ar.succeeded()) {
           onSuccessResponse(routingContext, 200, ar.result());
@@ -23,9 +23,9 @@ public class StudentHandler {
       });
   }
 
-  public void getById(RoutingContext routingContext) {
+  public void findById(RoutingContext routingContext) {
     final String id = routingContext.pathParam("id");
-    studentService.getById(id)
+    studentService.findById(id)
       .onComplete(ar -> {
         if(ar.succeeded()) {
           onSuccessResponse(routingContext, 200, ar.result());

@@ -12,12 +12,12 @@ public class StudentService {
 
   private final StudentRepository studentRepository;
 
-  public Future<List<Student>> getAll() {
-    return studentRepository.getAll();
+  public Future<List<Student>> findAll() {
+    return studentRepository.findAll();
   }
 
-  public Future<Student> getById(String id) {
-    return studentRepository.getById(id);
+  public Future<Student> findById(String id) {
+    return studentRepository.findById(id);
   }
 
   public Future<Student> insertOne(Student student) {

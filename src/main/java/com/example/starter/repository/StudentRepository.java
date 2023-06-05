@@ -16,13 +16,13 @@ public class StudentRepository {
 
   private static final String COLLECTION_NAME = "students";
 
-  private final MongoClient client;
+  private final MongoClient mongoClient;
 
-  public Future<List<Student>> getAll() {
+  public Future<List<Student>> findAll() {
     Promise<List<Student>> promise = Promise.promise();
     final JsonObject query = new JsonObject();
 
-    client.find(COLLECTION_NAME, query, result -> {
+    mongoClient.find(COLLECTION_NAME, query, result -> {
       if(result.succeeded()) {
         final List<Student> students = new ArrayList<>();
         result.result().forEach(student -> students.add(new Student(student)));
@@ -35,11 +35,11 @@ public class StudentRepository {
     return promise.future();
   }
 
-  public Future<Student> getById(String id) {
+  public Future<Student> findById(String id) {
     Promise<Student> promise = Promise.promise();
     final JsonObject query = new JsonObject().put("_id", new JsonObject().put("$oid", id));
 
-    return client.findOne(COLLECTION_NAME, query, null)
+    return mongoClient.findOne(COLLECTION_NAME, query, null)
       .flatMap(result -> {
         final Student student = new Student(result);
         promise.complete(student);
@@ -54,7 +54,7 @@ public class StudentRepository {
     JsonObject studentJson = JsonObject.mapFrom(student);
     studentJson.put("_id", new JsonObject().put("$oid", new ObjectId().toString()));
 
-    return client.insert(COLLECTION_NAME, studentJson)
+    return mongoClient.insert(COLLECTION_NAME, studentJson)
       .flatMap(result -> {
         final Student insertedStudent = new Student(studentJson);
         promise.complete(insertedStudent);
@@ -67,7 +67,7 @@ public class StudentRepository {
     Promise<String> promise = Promise.promise();
     final JsonObject query = new JsonObject().put("_id", new JsonObject().put("$oid", id));
 
-    return client.replaceDocuments(COLLECTION_NAME, query, JsonObject.mapFrom(student))
+    return mongoClient.replaceDocuments(COLLECTION_NAME, query, JsonObject.mapFrom(student))
       .flatMap(result -> {
         if(result.getDocModified() == 1) {
           promise.complete("Update successfully");
@@ -84,7 +84,7 @@ public class StudentRepository {
     Promise<String> promise = Promise.promise();
     final JsonObject query = new JsonObject().put("_id", new JsonObject().put("$oid", id));
 
-    return client.removeDocument(COLLECTION_NAME, query)
+    return mongoClient.removeDocument(COLLECTION_NAME, query)
       .flatMap(result -> {
         if(result.getRemovedCount() == 1) {
           promise.complete("Deleted successfully");

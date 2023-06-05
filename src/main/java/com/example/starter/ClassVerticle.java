@@ -1,25 +1,25 @@
 package com.example.starter;
 
-import com.example.starter.handler.StudentHandler;
-import com.example.starter.repository.StudentRepository;
-import com.example.starter.router.StudentRouter;
-import com.example.starter.service.StudentService;
+import com.example.starter.handler.ClassHandler;
+import com.example.starter.repository.ClassRepository;
+import com.example.starter.router.ClassRouter;
+import com.example.starter.service.ClassService;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 
-public class StudentVerticle extends AbstractVerticle {
-
+public class ClassVerticle extends AbstractVerticle {
 
   @Override
-  public void start() throws Exception {
+  public void start(Promise<Void> startPromise) throws Exception {
     final ConfigStoreOptions store = new ConfigStoreOptions().setType("env");
     final ConfigRetrieverOptions options = new ConfigRetrieverOptions().addStore(store);
     final ConfigRetriever retriever = ConfigRetriever.create(vertx, options);
@@ -28,12 +28,12 @@ public class StudentVerticle extends AbstractVerticle {
       .flatMap(configurations -> {
         final MongoClient mongoClient = createMongoClient(vertx, configurations);
 
-        final StudentRepository studentRepository = new StudentRepository(mongoClient);
-        final StudentService studentService = new StudentService(studentRepository);
-        final StudentHandler studentHandler = new StudentHandler(studentService);
-        final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
+        final ClassRepository classRepository = new ClassRepository(mongoClient);
+        final ClassService classService = new ClassService(classRepository);
+        final ClassHandler classHandler = new ClassHandler(classService);
+        final ClassRouter classRouter = new ClassRouter(vertx, classHandler);
 
-        return createHttpServer(studentRouter.getRouter(), configurations);
+        return createHttpServer(classRouter.getRouter(), configurations);
       })
       .onComplete(ar -> {
           if(ar.succeeded()) {
@@ -57,6 +57,6 @@ public class StudentVerticle extends AbstractVerticle {
     return vertx
       .createHttpServer()
       .requestHandler(rc)
-      .listen(configurations.getInteger("HTTP_PORT", 8080));
+      .listen(configurations.getInteger("HTTP_PORT", 8081));
   }
 }
