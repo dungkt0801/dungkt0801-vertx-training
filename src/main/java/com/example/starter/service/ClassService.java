@@ -19,4 +19,12 @@ public class ClassService {
     return classRepository.findById(id);
   }
 
+  public Future<Class> insertOne(Class clazz) {
+    return classRepository.insertOne(clazz);
+  }
+
+  public Future<String> updateOne(String id, Class clazz) {
+    return classRepository.updateOne(id, clazz);
+  }
+
 }

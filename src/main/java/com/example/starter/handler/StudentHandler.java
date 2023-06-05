@@ -60,7 +60,7 @@ public class StudentHandler {
 
   public void updateOne(RoutingContext rc) {
     if(rc.getBodyAsJson() != null) {
-      final  String id = rc.pathParam("id");
+      final String id = rc.pathParam("id");
       final Student student = StudentUtil.studentFromJsonObject(rc.getBodyAsJson());
       studentService.updateOne(id, student)
         .setHandler(ar -> {
@@ -70,6 +70,8 @@ public class StudentHandler {
             Util.onErrorResponse(rc, 400, ar.cause());
           }
         });
+    } else {
+      Util.onErrorResponse(rc, 400, new IllegalArgumentException("Request body is empty"));
     }
   }
 

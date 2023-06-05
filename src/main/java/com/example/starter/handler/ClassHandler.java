@@ -1,6 +1,8 @@
 package com.example.starter.handler;
 
+import com.example.starter.model.Class;
 import com.example.starter.service.ClassService;
+import com.example.starter.util.ClassUtil;
 import com.example.starter.util.Util;
 import io.vertx.ext.web.RoutingContext;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,39 @@ public class ClassHandler {
           Util.onErrorResponse(rc, 400, ar.cause());
         }
       });
+  }
+
+  public void insertOne(RoutingContext rc) {
+    if(rc.getBodyAsJson() != null) {
+      final Class clazz = ClassUtil.classFromJsonObject(rc.getBodyAsJson());
+      classService.insertOne(clazz)
+        .setHandler(ar -> {
+          if(ar.succeeded()) {
+            Util.onSuccessResponse(rc, 200, ar.result());
+          } else {
+            Util.onErrorResponse(rc, 400, ar.cause());
+          }
+        });
+    } else {
+      Util.onErrorResponse(rc, 400, new IllegalArgumentException("Request body is empty"));
+    }
+  }
+
+  public void updateOne(RoutingContext rc) {
+    if(rc.getBodyAsJson() != null) {
+      final String id = rc.pathParam("id");
+      final Class clazz = ClassUtil.classFromJsonObject(rc.getBodyAsJson());
+      classService.updateOne(id, clazz)
+        .setHandler(ar -> {
+          if(ar.succeeded()) {
+            Util.onSuccessResponse(rc, 200, ar.result());
+          } else {
+            Util.onErrorResponse(rc, 400, ar.cause());
+          }
+        });
+    } else {
+      Util.onErrorResponse(rc, 400, new IllegalArgumentException("Request body is empty"));
+    }
   }
 
 }

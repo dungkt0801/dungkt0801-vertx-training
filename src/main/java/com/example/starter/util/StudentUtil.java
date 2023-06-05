@@ -6,9 +6,14 @@ import java.util.Date;
 import org.bson.types.ObjectId;
 
 public class StudentUtil {
+
   public static Student studentFromJsonObject (JsonObject jsonObject) {
     Student student = new Student();
-    student.setName(jsonObject.getString("name"));
+
+    String name = jsonObject.getString("name");
+    if(name != null && !name.isEmpty()) {
+      student.setName(name);
+    }
 
     Long birthDayTimestamp = jsonObject.getLong("birthDay");
     if (birthDayTimestamp != null) {

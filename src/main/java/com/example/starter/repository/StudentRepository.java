@@ -57,9 +57,12 @@ public class StudentRepository {
     JsonObject studentJson = StudentUtil.jsonObjectFromStudent(student)
       .put("_id", new JsonObject().put("$oid", new ObjectId().toString()));
 
-    mongoClient.insert(COLLECTION_NAME, studentJson ,result -> {
-      future.complete(new Student(studentJson));
-
+    mongoClient.insert(COLLECTION_NAME, studentJson , result -> {
+      if(result.succeeded()) {
+        future.complete(new Student(studentJson));
+      } else {
+        future.fail(result.cause());
+      }
     });
 
     return future;
