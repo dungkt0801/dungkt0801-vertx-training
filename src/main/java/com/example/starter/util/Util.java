@@ -3,6 +3,7 @@ package com.example.starter.util;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import org.bson.types.ObjectId;
 
 public class Util {
   public static void onSuccessResponse(RoutingContext rc, int status, Object object) {
@@ -19,6 +20,15 @@ public class Util {
       .setStatusCode(status)
       .putHeader("Content-Type", "application/json")
       .end(Json.encodePrettily(error));
+  }
+
+  public static boolean isValidObjectId(String idString) {
+    try {
+      new ObjectId(idString);
+      return true;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
 }

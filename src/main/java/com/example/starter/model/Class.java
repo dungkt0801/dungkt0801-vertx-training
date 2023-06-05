@@ -22,12 +22,12 @@ public class Class {
   private Long numberOfStudents;
 
   public Class(JsonObject jsonObject) {
+    // id
+    JsonObject idObject = jsonObject.getJsonObject("_id");
+    this.id = idObject.getString("$oid");
 
-    String idString = jsonObject.getString("_id");
-    this.id = new JsonObject(idString).getString("$oid");
-
+    // numberOfStudents
     this.numberOfStudents = jsonObject.getLong("numberOfStudents");
-
   }
 
 }

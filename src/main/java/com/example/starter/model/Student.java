@@ -25,23 +25,22 @@ public class Student {
 
   public Student(JsonObject jsonObject) {
 
-    String idString = jsonObject.getString("_id");
-    this.id = new JsonObject(idString).getString("$oid");
+    JsonObject idString = jsonObject.getJsonObject("_id");
+    this.id = idString.getString("$oid");
 
     String name = jsonObject.getString("name");
     if(name != null) {
       this.name = jsonObject.getString("name");
     }
 
-    String birthDayTimestampStr = jsonObject.getString("birthDay");
+    Long birthDayTimestampStr = jsonObject.getLong("birthDay");
     if(birthDayTimestampStr != null) {
-      this.birthDay = new Date(Long.parseLong(birthDayTimestampStr));
+      this.birthDay = new Date(birthDayTimestampStr);
     }
 
-    String classId = jsonObject.getString("classId");
+    JsonObject classId = jsonObject.getJsonObject("classId");
     if(classId != null) {
-      JsonObject classIdJson = new JsonObject(classId);
-      this.classId = classIdJson.getString("$oid");
+      this.classId = classId.getString("$oid");
     } else {
       this.classId = null;
     }
