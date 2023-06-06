@@ -9,6 +9,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 
 @RequiredArgsConstructor
 public class StudentHandler {
@@ -91,9 +92,16 @@ public class StudentHandler {
     MultiMap queryParams = rc.request().params();
     JsonObject query = new JsonObject();
 
+    // name
     String name = queryParams.get("name");
     if(name != null && !name.isEmpty()) {
       query.put("name", new JsonObject().put("$regex", name));
+    }
+
+    // classId
+    String classId = queryParams.get("classId");
+    if(classId != null && !classId.isEmpty()) {
+      query.put("classId", new JsonObject().put("$oid", new ObjectId(classId).toString()));
     }
 
     return query;
