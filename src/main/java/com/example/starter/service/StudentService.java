@@ -1,13 +1,17 @@
 package com.example.starter.service;
 
+import com.example.starter.dto.ClassDto;
+import com.example.starter.dto.StudentDto;
 import com.example.starter.model.Class;
 import com.example.starter.model.Student;
 import com.example.starter.repository.ClassRepository;
 import com.example.starter.repository.StudentRepository;
 import com.example.starter.util.Util;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -17,20 +21,33 @@ public class StudentService {
 
   private final ClassRepository classRepository;
 
-  public Future<List<Student>> findAll(JsonObject query) {
-    return studentRepository.findAll(query);
-  }
-  public Future<Student> findById(String id) {
-    return studentRepository.findById(id);
+  public Future<List<StudentDto>> findAll(JsonObject query) {
+    return studentRepository.findAll(query)
+      .compose(students -> {
+        List<Future> futures = students.stream()
+          .map(student -> classRepository.findById(student.getClassId())
+            .map(clazz -> buildStudentResponseDto(student, clazz)))
+          .collect(Collectors.toList());
+
+        return CompositeFuture.all(futures).map(CompositeFuture::list);
+      });
   }
 
-  public Future<Student> insertOne(Student student) {
+  public Future<StudentDto> findById(String id) {
+    return studentRepository.findById(id)
+      .compose(student -> classRepository.findById(student.getClassId())
+        .map(clazz -> buildStudentResponseDto(student, clazz))
+      );
+  }
+
+  public Future<StudentDto> insertOne(Student student) {
     if(!Util.isValidObjectId(student.getClassId())) {
       return Future.failedFuture(new IllegalArgumentException("Invalid class id"));
     }
 
     return classRepository.findById(student.getClassId())
-      .compose(clazz -> checkClassAvailableAndInsertStudent(clazz, student))
+      .compose(clazz -> checkClassAvailableAndInsertStudent(clazz, student)
+        .map(insertedStudent -> buildStudentResponseDto(student, clazz)))
       .recover(this::handleInsertStudentError);
   }
 
@@ -53,7 +70,7 @@ public class StudentService {
       });
   }
 
-  private Future<Student> handleInsertStudentError(Throwable err) {
+  private Future<StudentDto> handleInsertStudentError(Throwable err) {
     if(err instanceof IllegalArgumentException
       && err.getMessage().equals("The class is at maximum enrollment capacity")) {
       return Future.failedFuture(err);
@@ -132,6 +149,22 @@ public class StudentService {
           .compose(s -> studentRepository.delete(id));
       })
       .recover(err -> Future.failedFuture(new IllegalArgumentException(err.getMessage())));
+  }
+
+  private StudentDto buildStudentResponseDto(Student student, Class clazz) {
+    return StudentDto.builder()
+      .id(student.getId())
+      .name(student.getName())
+      .birthDay(student.getBirthDay())
+      .classInfo(
+        ClassDto.builder()
+          .id(clazz.getId())
+          .className(clazz.getClassName())
+          .totalStudents(clazz.getTotalStudents())
+          .enrolledStudents(clazz.getEnrolledStudent())
+          .build()
+      )
+      .build();
   }
 
 }

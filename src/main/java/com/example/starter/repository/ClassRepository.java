@@ -44,7 +44,7 @@ public class ClassRepository {
       if(res.result() != null) {
         future.complete(new Class(res.result()));
       } else {
-        future.fail(new NoSuchElementException("No class with id " + id));
+        future.fail(new NoSuchElementException("No class was found with the id " + id));
       }
     });
 
@@ -77,7 +77,7 @@ public class ClassRepository {
       if(result.result().getDocModified() == 1) {
         future.complete("Update successfully");
       } else {
-        future.fail(new NoSuchElementException("No class with id " + id));
+        future.fail(new NoSuchElementException("No class was found with the id " + id));
       }
     });
 

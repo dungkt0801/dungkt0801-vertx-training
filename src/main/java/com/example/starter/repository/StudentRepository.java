@@ -44,7 +44,7 @@ public class StudentRepository {
       if(result.result() != null) {
         future.complete(new Student(result.result()));
       } else {
-        future.fail(new NoSuchElementException("No student with id " + id));
+        future.fail(new NoSuchElementException("No student was found with the id " + id));
       }
     });
 
@@ -79,7 +79,7 @@ public class StudentRepository {
       if(result.result() != null && result.result().getDocModified() == 1) {
         future.complete("Update successfully");
       } else {
-        future.fail(new NoSuchElementException("No student with id " + id));
+        future.fail(new NoSuchElementException("No student was found with the id " + id));
       }
     });
 
@@ -94,7 +94,7 @@ public class StudentRepository {
       if(result.result().getRemovedCount() == 1) {
         future.complete("Delete successfully");
       } else {
-        future.fail(new NoSuchElementException("No student with id " + id));
+        future.fail(new NoSuchElementException("No student was found with the id " + id));
       }
     });
 
