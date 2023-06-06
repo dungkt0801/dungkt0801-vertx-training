@@ -8,7 +8,6 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -24,25 +23,22 @@ public class StudentVerticle extends AbstractVerticle {
     final ConfigRetrieverOptions options = new ConfigRetrieverOptions().addStore(store);
     final ConfigRetriever retriever = ConfigRetriever.create(vertx, options);
 
-    retriever.getConfig()
-      .flatMap(configurations -> {
-        final MongoClient client = createMongoClient(vertx, configurations);
+    retriever.getConfig(configurations -> {
+      final MongoClient mongoClient = createMongoClient(vertx, configurations.result());
 
-        final StudentRepository bookRepository = new StudentRepository(client);
-        final StudentService bookService = new StudentService(bookRepository);
-        final StudentHandler bookHandler = new StudentHandler(bookService);
-        final StudentRouter bookRouter = new StudentRouter(vertx, bookHandler);
+      final StudentRepository studentRepository = new StudentRepository(mongoClient);
+      final StudentService studentService = new StudentService(studentRepository);
+      final StudentHandler studentHandler = new StudentHandler(studentService);
+      final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
 
-        return createHttpServer(bookRouter.getRouter(), configurations);
-      })
-      .onComplete(ar -> {
-          if(ar.succeeded()) {
-            System.out.println("HTTP Server listening on port " + ar.result().actualPort());
-          } else {
-            System.out.println("Error occurred before creating a new HTTP server: "  + ar.cause().getMessage());
-          }
-        }
-      );
+      HttpServer server = createHttpServer(studentRouter.getRouter(), configurations.result());
+
+      if(server != null) {
+        System.out.println("HTTP Server listening on port " + server.actualPort());
+      } else {
+        System.out.println("Error occurred before creating a new HTTP server");
+      }
+    });
   }
 
   private MongoClient createMongoClient(Vertx vertx, JsonObject configurations) {
@@ -53,7 +49,7 @@ public class StudentVerticle extends AbstractVerticle {
     return MongoClient.createShared(vertx, config);
   }
 
-  private Future<HttpServer> createHttpServer(Router rc, JsonObject configurations) {
+  private HttpServer createHttpServer(Router rc, JsonObject configurations) {
     return vertx
       .createHttpServer()
       .requestHandler(rc)
