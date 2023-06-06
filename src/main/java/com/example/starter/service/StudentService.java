@@ -116,7 +116,22 @@ public class StudentService {
   }
 
   public Future<String> deleteOne(String id) {
-    return studentRepository.delete(id);
+
+    if(!Util.isValidObjectId(id)) {
+      return Future.failedFuture(new IllegalArgumentException("Invalid student id"));
+    }
+
+    return studentRepository.findById(id)
+      .compose(student -> {
+        String classId = student.getClassId();
+        return classRepository.findById(classId)
+          .compose(clazz -> {
+            clazz.setEnrolledStudent(clazz.getEnrolledStudent() - 1);
+            return classRepository.updateOne(classId, clazz);
+          })
+          .compose(s -> studentRepository.delete(id));
+      })
+      .recover(err -> Future.failedFuture(new IllegalArgumentException(err.getMessage())));
   }
 
 }
