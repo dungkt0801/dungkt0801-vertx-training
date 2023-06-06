@@ -1,6 +1,7 @@
 package com.example.starter;
 
 import com.example.starter.handler.StudentHandler;
+import com.example.starter.repository.ClassRepository;
 import com.example.starter.repository.StudentRepository;
 import com.example.starter.router.StudentRouter;
 import com.example.starter.service.StudentService;
@@ -27,7 +28,8 @@ public class StudentVerticle extends AbstractVerticle {
       final MongoClient mongoClient = createMongoClient(vertx, configurations.result());
 
       final StudentRepository studentRepository = new StudentRepository(mongoClient);
-      final StudentService studentService = new StudentService(studentRepository);
+      final ClassRepository classRepository = new ClassRepository(mongoClient);
+      final StudentService studentService = new StudentService(studentRepository, classRepository);
       final StudentHandler studentHandler = new StudentHandler(studentService);
       final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
 

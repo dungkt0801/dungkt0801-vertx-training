@@ -2,7 +2,6 @@ package com.example.starter.util;
 
 import com.example.starter.model.Student;
 import io.vertx.core.json.JsonObject;
-import java.util.Date;
 import org.bson.types.ObjectId;
 
 public class StudentUtil {
@@ -15,9 +14,9 @@ public class StudentUtil {
       student.setName(name);
     }
 
-    Long birthDayTimestamp = jsonObject.getLong("birthDay");
-    if (birthDayTimestamp != null) {
-      student.setBirthDay(new Date(birthDayTimestamp));
+    String birthDay= jsonObject.getString("birthDay");
+    if (birthDay != null) {
+      student.setBirthDay(birthDay);
     }
 
     student.setClassId(jsonObject.getString("classId"));
@@ -34,9 +33,9 @@ public class StudentUtil {
       jsonObject.put("name", name);
     }
 
-    Date birthDay = student.getBirthDay();
+    String birthDay = student.getBirthDay();
     if(birthDay != null) {
-      jsonObject.put("birthDay", birthDay.getTime());
+      jsonObject.put("birthDay", new JsonObject().put("$date", birthDay));
     }
 
     String classId = student.getClassId();

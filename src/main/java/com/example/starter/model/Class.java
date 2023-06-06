@@ -21,7 +21,9 @@ public class Class {
 
   private String className;
 
-  private Long numberOfStudents;
+  private Long totalStudents;
+
+  private Long enrolledStudent;
 
   public Class(JsonObject jsonObject) {
     // id
@@ -34,11 +36,22 @@ public class Class {
       this.className = className;
     }
 
-    // numberOfStudents
-    Long numberOfStudents = jsonObject.getLong("numberOfStudents");
-    if(numberOfStudents != null && numberOfStudents >= 0) {
-      this.numberOfStudents = jsonObject.getLong("numberOfStudents");
+    // totalStudents
+    Long totalStudents = jsonObject.getLong("totalStudents");
+    if(totalStudents != null && totalStudents >= 0) {
+      this.totalStudents = totalStudents;
+    } else {
+      this.totalStudents = 0L;
     }
+
+    // enrolledStudent
+    Long enrolledStudents = jsonObject.getLong("enrolledStudents");
+    if(enrolledStudents != null && enrolledStudents >= 0) {
+      this.enrolledStudent = enrolledStudents;
+    } else {
+      this.enrolledStudent = 0L;
+    }
+
   }
 
 }

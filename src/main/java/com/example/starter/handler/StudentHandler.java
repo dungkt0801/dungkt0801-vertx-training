@@ -38,7 +38,7 @@ public class StudentHandler {
           }
         });
     } else {
-      Util.onErrorResponse(rc, 400, new NoSuchElementException("Invalid id"));
+      Util.onErrorResponse(rc, 400, new NoSuchElementException("Invalid student id"));
     }
   }
 

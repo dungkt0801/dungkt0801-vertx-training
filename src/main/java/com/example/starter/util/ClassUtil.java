@@ -13,9 +13,14 @@ public class ClassUtil {
       clazz.setClassName(className);
     }
 
-    Long numberOfStudents = jsonObject.getLong("numberOfStudents");
-    if(numberOfStudents != null && numberOfStudents > 0) {
-      clazz.setNumberOfStudents(numberOfStudents);
+    Long totalStudents = jsonObject.getLong("totalStudents");
+    if(totalStudents != null && totalStudents >= 0) {
+      clazz.setTotalStudents(totalStudents);
+    }
+
+    Long enrolledStudents = jsonObject.getLong("enrolledStudents");
+    if(enrolledStudents != null && enrolledStudents >= 0) {
+      clazz.setEnrolledStudent(enrolledStudents);
     }
 
     return clazz;
@@ -30,9 +35,14 @@ public class ClassUtil {
       jsonObject.put("className", className);
     }
 
-    Long numberOfStudents = clazz.getNumberOfStudents();
-    if(numberOfStudents != null) {
-      jsonObject.put("numberOfStudents", numberOfStudents);
+    Long totalStudents = clazz.getTotalStudents();
+    if(totalStudents != null && totalStudents >= 0) {
+      jsonObject.put("totalStudents", totalStudents);
+    }
+
+    Long enrolledStudents = clazz.getEnrolledStudent();
+    if(enrolledStudents != null && enrolledStudents >= 0) {
+      jsonObject.put("enrolledStudents", enrolledStudents);
     }
 
     return jsonObject;

@@ -41,10 +41,10 @@ public class ClassRepository {
     JsonObject query = new JsonObject().put("_id", new JsonObject().put("$oid", id));
 
     mongoClient.findOne(COLLECTION_NAME, query, null, res -> {
-      if(res.succeeded()) {
+      if(res.result() != null) {
         future.complete(new Class(res.result()));
       } else {
-        future.fail(res.cause());
+        future.fail(new NoSuchElementException("No class with id " + id));
       }
     });
 

@@ -54,12 +54,14 @@ public class StudentRepository {
   public Future<Student> insert(Student student) {
     Future<Student> future = Future.future();
 
-    JsonObject studentJson = StudentUtil.jsonObjectFromStudent(student)
-      .put("_id", new JsonObject().put("$oid", new ObjectId().toString()));
+    JsonObject studentJson = StudentUtil.jsonObjectFromStudent(student);
+    String id = new ObjectId().toString();
+    studentJson.put("_id", new JsonObject().put("$oid", id));
+    student.setId(id);
 
     mongoClient.insert(COLLECTION_NAME, studentJson , result -> {
       if(result.succeeded()) {
-        future.complete(new Student(studentJson));
+        future.complete(student);
       } else {
         future.fail(result.cause());
       }
@@ -74,7 +76,7 @@ public class StudentRepository {
       .put("_id", new JsonObject().put("$oid", id));
 
     mongoClient.replaceDocuments(COLLECTION_NAME, query, StudentUtil.jsonObjectFromStudent(student), result -> {
-      if(result.result().getDocModified() == 1) {
+      if(result.result() != null && result.result().getDocModified() == 1) {
         future.complete("Update successfully");
       } else {
         future.fail(new NoSuchElementException("No student with id " + id));
