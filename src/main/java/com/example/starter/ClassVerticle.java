@@ -1,9 +1,12 @@
 package com.example.starter;
 
 import com.example.starter.handler.ClassHandler;
+import com.example.starter.handler.impl.ClassHandlerImpl;
 import com.example.starter.repository.ClassRepository;
+import com.example.starter.repository.impl.ClassRepositoryImpl;
 import com.example.starter.router.ClassRouter;
 import com.example.starter.service.ClassService;
+import com.example.starter.service.impl.ClassServiceImpl;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -26,9 +29,9 @@ public class ClassVerticle extends AbstractVerticle {
     retriever.getConfig(configurations -> {
         final MongoClient mongoClient = createMongoClient(vertx, configurations.result());
 
-        final ClassRepository classRepository = new ClassRepository(mongoClient);
-        final ClassService classService = new ClassService(classRepository);
-        final ClassHandler classHandler = new ClassHandler(classService);
+        final ClassRepository classRepository = new ClassRepositoryImpl(mongoClient);
+        final ClassService classService = new ClassServiceImpl(classRepository);
+        final ClassHandler classHandler = new ClassHandlerImpl(classService);
         final ClassRouter classRouter = new ClassRouter(vertx, classHandler);
 
         HttpServer server = createHttpServer(classRouter.getRouter(), configurations.result());

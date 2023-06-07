@@ -1,10 +1,14 @@
 package com.example.starter;
 
 import com.example.starter.handler.StudentHandler;
+import com.example.starter.handler.impl.StudentHandlerImpl;
 import com.example.starter.repository.ClassRepository;
 import com.example.starter.repository.StudentRepository;
+import com.example.starter.repository.impl.ClassRepositoryImpl;
+import com.example.starter.repository.impl.StudentRepositoryImpl;
 import com.example.starter.router.StudentRouter;
 import com.example.starter.service.StudentService;
+import com.example.starter.service.impl.StudentServiceImpl;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -27,10 +31,10 @@ public class StudentVerticle extends AbstractVerticle {
     retriever.getConfig(configurations -> {
       final MongoClient mongoClient = createMongoClient(vertx, configurations.result());
 
-      final StudentRepository studentRepository = new StudentRepository(mongoClient);
-      final ClassRepository classRepository = new ClassRepository(mongoClient);
-      final StudentService studentService = new StudentService(studentRepository, classRepository);
-      final StudentHandler studentHandler = new StudentHandler(studentService);
+      final StudentRepository studentRepository = new StudentRepositoryImpl(mongoClient);
+      final ClassRepository classRepository = new ClassRepositoryImpl(mongoClient);
+      final StudentService studentService = new StudentServiceImpl(studentRepository, classRepository);
+      final StudentHandler studentHandler = new StudentHandlerImpl(studentService);
       final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
 
       HttpServer server = createHttpServer(studentRouter.getRouter(), configurations.result());
