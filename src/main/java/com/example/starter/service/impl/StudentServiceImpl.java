@@ -7,7 +7,6 @@ import com.example.starter.model.Student;
 import com.example.starter.repository.ClassRepository;
 import com.example.starter.repository.StudentRepository;
 import com.example.starter.service.StudentService;
-import com.example.starter.util.Util;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -24,6 +23,18 @@ public class StudentServiceImpl implements StudentService {
 
   @Override
   public Future<List<StudentDto>> findAll(JsonObject query) {
+    // check if query by className
+    if(query.containsKey("className")) {
+      return classRepository.findClassIdsByName(query.remove("className").toString())
+        .map(classIds -> classIds.stream().map(clasId -> new JsonObject().put("$oid", clasId)).collect(Collectors.toList()))
+        .map(classObjectIds -> query.put("classId", new JsonObject().put("$in", classObjectIds)))
+        .compose(this::getAllStudent);
+    }
+
+    return getAllStudent(query);
+  }
+
+  private Future<List<StudentDto>> getAllStudent(JsonObject query) {
     return studentRepository.findAll(query)
       .compose(students -> {
         List<Future> futures = students.stream()
@@ -45,10 +56,6 @@ public class StudentServiceImpl implements StudentService {
 
   @Override
   public Future<StudentDto> insertOne(Student student) {
-    if(!Util.isValidObjectId(student.getClassId())) {
-      return Future.failedFuture(new IllegalArgumentException("Invalid class id"));
-    }
-
     return classRepository.findById(student.getClassId())
       .compose(clazz -> checkClassAvailableAndInsertStudent(clazz, student)
         .map(insertedStudent -> buildStudentResponseDto(student, clazz)))
@@ -79,21 +86,12 @@ public class StudentServiceImpl implements StudentService {
       && err.getMessage().equals("The class is at maximum enrollment capacity")) {
       return Future.failedFuture(err);
     } else{
-      return Future.failedFuture(new IllegalArgumentException(err.getMessage()));
+      return Future.failedFuture(err);
     }
   }
 
   @Override
-  public Future<String> updateOne(String id, Student student) {
-    if(!Util.isValidObjectId(id)) {
-      return Future.failedFuture(new IllegalArgumentException("Invalid class id"));
-    }
-
-    if(!Util.isValidObjectId(student.getClassId())) {
-      return Future.failedFuture(new IllegalArgumentException("Invalid class id"));
-    }
-
-    student.setId(id);
+  public Future<String> updateOne(Student student) {
     return studentRepository.findById(student.getId())
       .compose(oldStudent -> {
         String oldClassId = oldStudent.getClassId();
@@ -133,17 +131,12 @@ public class StudentServiceImpl implements StudentService {
       && err.getMessage().equals("The class is at maximum enrollment capacity")) {
       return Future.failedFuture(err);
     } else {
-      return Future.failedFuture(new IllegalArgumentException(err.getMessage()));
+      return Future.failedFuture(err);
     }
   }
 
   @Override
   public Future<String> deleteOne(String id) {
-
-    if(!Util.isValidObjectId(id)) {
-      return Future.failedFuture(new IllegalArgumentException("Invalid student id"));
-    }
-
     return studentRepository.findById(id)
       .compose(student -> {
         String classId = student.getClassId();
@@ -155,6 +148,10 @@ public class StudentServiceImpl implements StudentService {
           .compose(s -> studentRepository.delete(id));
       })
       .recover(err -> Future.failedFuture(new IllegalArgumentException(err.getMessage())));
+  }
+
+  private Future<List<String>> findClassIdsByName(String name) {
+    return classRepository.findClassIdsByName(name);
   }
 
   private StudentDto buildStudentResponseDto(Student student, Class clazz) {

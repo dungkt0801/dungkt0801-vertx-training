@@ -32,4 +32,9 @@ public class ClassServiceImpl implements ClassService {
     return classRepository.updateOne(id, clazz);
   }
 
+  @Override
+  public Future<List<String>> findClassIdsByName(String name) {
+    return classRepository.findClassIdsByName(name);
+  }
+
 }

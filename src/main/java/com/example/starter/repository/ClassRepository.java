@@ -14,4 +14,6 @@ public interface ClassRepository {
 
   Future<String> updateOne(String id, Class clazz);
 
+  Future<List<String>> findClassIdsByName(String name);
+
 }

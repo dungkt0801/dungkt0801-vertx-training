@@ -5,10 +5,10 @@ import com.example.starter.repository.ClassRepository;
 import com.example.starter.util.ClassUtil;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.mongo.MongoClient;
-import java.util.ArrayList;
+import io.vertx.ext.mongo.MongoClient;;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 
@@ -26,8 +26,9 @@ public class ClassRepositoryImpl implements ClassRepository {
 
     mongoClient.find(COLLECTION_NAME, query, result -> {
       if (result.succeeded()) {
-        final List<Class> classes = new ArrayList<>();
-        result.result().forEach(clazz -> classes.add(new Class(clazz)));
+        final List<Class> classes = result.result().stream()
+            .map(Class::new)
+            .collect(Collectors.toList());
 
         future.complete(classes);
       } else {
@@ -83,6 +84,27 @@ public class ClassRepositoryImpl implements ClassRepository {
         future.complete("Update successfully");
       } else {
         future.fail(new NoSuchElementException("No class was found with the id " + id));
+      }
+    });
+
+    return future;
+  }
+
+  public Future<List<String>> findClassIdsByName(String name) {
+    Future<List<String>> future = Future.future();
+    JsonObject query = new JsonObject().put("className", new JsonObject()
+      .put("$regex", name.trim())
+      .put("$options", "i")
+    );
+    mongoClient.find(COLLECTION_NAME, query, result -> {
+      if(result.succeeded()) {
+        List<String> classIds = result.result().stream()
+          .map(Class::new)
+          .map(Class::getId)
+          .collect(Collectors.toList());
+        future.complete(classIds);
+      } else {
+        future.fail(result.cause());
       }
     });
 

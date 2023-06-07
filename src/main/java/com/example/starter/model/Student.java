@@ -28,11 +28,14 @@ public class Student {
     this.id = idString.getString("$oid");
 
     String name = jsonObject.getString("name");
-    if(name != null) {
+    if(name != null && !name.isEmpty()) {
       this.name = jsonObject.getString("name");
     }
 
-    this.birthDay = jsonObject.getJsonObject("birthDay").getString("$date");
+    String birthDay = jsonObject.getString("birthDay");
+    if(birthDay != null && !birthDay.isEmpty()) {
+      this.birthDay = jsonObject.getString("birthDay");
+    }
 
     JsonObject classId = jsonObject.getJsonObject("classId");
     if(classId != null) {
