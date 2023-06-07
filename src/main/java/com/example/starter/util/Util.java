@@ -31,4 +31,8 @@ public class Util {
     }
   }
 
+  public static JsonObject convertStringIdToObjectId(String id) {
+    return new JsonObject().put("_id", new JsonObject().put("$oid", id));
+  }
+
 }

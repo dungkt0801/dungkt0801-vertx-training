@@ -5,6 +5,7 @@ import com.example.starter.service.ClassService;
 import com.example.starter.util.ClassUtil;
 import com.example.starter.util.Util;
 import io.vertx.ext.web.RoutingContext;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -24,14 +25,18 @@ public class ClassHandler {
 
   public void findById(RoutingContext rc) {
     final String id = rc.pathParam("id");
-    classService.findById(id)
-      .setHandler(ar -> {
-        if (ar.succeeded()) {
-          Util.onSuccessResponse(rc, 200, ar.result());
-        } else {
-          Util.onErrorResponse(rc, 400, ar.cause());
-        }
-      });
+    if(Util.isValidObjectId(id)) {
+      classService.findById(id)
+        .setHandler(ar -> {
+          if (ar.succeeded()) {
+            Util.onSuccessResponse(rc, 200, ar.result());
+          } else {
+            Util.onErrorResponse(rc, 400, ar.cause());
+          }
+        });
+    } else {
+      Util.onErrorResponse(rc, 400, new NoSuchElementException("Invalid class id"));
+    }
   }
 
   public void insertOne(RoutingContext rc) {
