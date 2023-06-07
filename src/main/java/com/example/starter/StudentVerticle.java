@@ -13,6 +13,7 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -23,27 +24,41 @@ public class StudentVerticle extends AbstractVerticle {
 
 
   @Override
-  public void start() throws Exception {
+  public void start(Future<Void> startFuture) throws Exception {
     final ConfigStoreOptions store = new ConfigStoreOptions().setType("env");
     final ConfigRetrieverOptions options = new ConfigRetrieverOptions().addStore(store);
     final ConfigRetriever retriever = ConfigRetriever.create(vertx, options);
 
-    retriever.getConfig(configurations -> {
-      final MongoClient mongoClient = createMongoClient(vertx, configurations.result());
-
-      final StudentRepository studentRepository = new StudentRepositoryImpl(mongoClient);
-      final ClassRepository classRepository = new ClassRepositoryImpl(mongoClient);
-      final StudentService studentService = new StudentServiceImpl(studentRepository, classRepository);
-      final StudentHandler studentHandler = new StudentHandlerImpl(studentService);
-      final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
-
-      HttpServer server = createHttpServer(studentRouter.getRouter(), configurations.result());
-
-      if(server != null) {
-        System.out.println("HTTP Server listening on port " + server.actualPort());
+    retriever.getConfig(ar -> {
+      if(ar.failed()) {
+        startFuture.fail(ar.cause());
       } else {
-        System.out.println("Error occurred before creating a new HTTP server");
+        createServicesAndStartServer(ar.result(), startFuture);
       }
+    });
+  }
+
+  private void createServicesAndStartServer(JsonObject configurations, Future<Void> startFuture) {
+    final MongoClient mongoClient = createMongoClient(vertx, configurations);
+
+    final StudentRepository studentRepository = new StudentRepositoryImpl(mongoClient);
+    final ClassRepository classRepository = new ClassRepositoryImpl(mongoClient);
+    final StudentService studentService = new StudentServiceImpl(studentRepository, classRepository);
+    final StudentHandler studentHandler = new StudentHandlerImpl(studentService);
+    final StudentRouter studentRouter = new StudentRouter(vertx, studentHandler);
+
+    HttpServer server = createHttpServer(studentRouter.getRouter());
+    if(server != null) {
+      startServer(server, configurations, startFuture);
+    } else {
+      startFuture.fail("Error occurred before creating a new HTTP server");
+    }
+  }
+
+  private void startServer(HttpServer server, JsonObject configurations, Future<Void> startFuture) {
+    server.listen(configurations.getInteger("HTTP_PORT", 8080), result -> {
+      System.out.println("HTTP Server listening on port " + server.actualPort());
+      startFuture.complete();
     });
   }
 
@@ -55,10 +70,9 @@ public class StudentVerticle extends AbstractVerticle {
     return MongoClient.createShared(vertx, config);
   }
 
-  private HttpServer createHttpServer(Router rc, JsonObject configurations) {
+  private HttpServer createHttpServer(Router rc) {
     return vertx
       .createHttpServer()
-      .requestHandler(rc)
-      .listen(configurations.getInteger("HTTP_PORT", 8080));
+      .requestHandler(rc);
   }
 }
