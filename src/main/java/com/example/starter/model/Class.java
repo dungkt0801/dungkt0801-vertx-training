@@ -23,7 +23,7 @@ public class Class {
 
   private Long totalStudents;
 
-  private Long enrolledStudent;
+  private Long enrolledStudents;
 
   public Class(JsonObject jsonObject) {
     // id
@@ -47,9 +47,9 @@ public class Class {
     // enrolledStudent
     Long enrolledStudents = jsonObject.getLong("enrolledStudents");
     if(enrolledStudents != null && enrolledStudents >= 0) {
-      this.enrolledStudent = enrolledStudents;
+      this.enrolledStudents = enrolledStudents;
     } else {
-      this.enrolledStudent = 0L;
+      this.enrolledStudents = 0L;
     }
 
   }

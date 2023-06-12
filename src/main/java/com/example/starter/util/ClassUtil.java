@@ -20,7 +20,7 @@ public class ClassUtil {
 
     Long enrolledStudents = jsonObject.getLong("enrolledStudents");
     if(enrolledStudents != null && enrolledStudents >= 0) {
-      clazz.setEnrolledStudent(enrolledStudents);
+      clazz.setEnrolledStudents(enrolledStudents);
     }
 
     return clazz;
@@ -40,7 +40,7 @@ public class ClassUtil {
       jsonObject.put("totalStudents", totalStudents);
     }
 
-    Long enrolledStudents = clazz.getEnrolledStudent();
+    Long enrolledStudents = clazz.getEnrolledStudents();
     if(enrolledStudents != null && enrolledStudents >= 0) {
       jsonObject.put("enrolledStudents", enrolledStudents);
     }

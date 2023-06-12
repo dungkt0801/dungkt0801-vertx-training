@@ -63,7 +63,7 @@ public class StudentServiceImpl implements StudentService {
   }
 
   private Future<Student> checkClassAvailableAndInsertStudent(Class clazz, Student student) {
-    Long enrolledStudents = clazz.getEnrolledStudent();
+    Long enrolledStudents = clazz.getEnrolledStudents();
     Long totalStudents = clazz.getTotalStudents();
     if(enrolledStudents < totalStudents) {
       return insertStudentAndUpdateClass(clazz, student);
@@ -75,7 +75,7 @@ public class StudentServiceImpl implements StudentService {
   private Future<Student> insertStudentAndUpdateClass(Class clazz, Student student){
     return studentRepository.insert(student)
       .compose(insertedStudent -> {
-        clazz.setEnrolledStudent(clazz.getEnrolledStudent() + 1);
+        clazz.setEnrolledStudents(clazz.getEnrolledStudents() + 1);
         return classRepository.updateOne(clazz.getId(), clazz)
           .map(insertedStudent);
       });
@@ -97,7 +97,7 @@ public class StudentServiceImpl implements StudentService {
         String oldClassId = oldStudent.getClassId();
         return classRepository.findById(oldClassId)
           .compose(oldClass -> {
-            oldClass.setEnrolledStudent(oldClass.getEnrolledStudent() - 1);
+            oldClass.setEnrolledStudents(oldClass.getEnrolledStudents() - 1);
             return classRepository.updateOne(oldClassId, oldClass);
           });
       })
@@ -108,7 +108,7 @@ public class StudentServiceImpl implements StudentService {
   }
 
   private Future<String> checkClassAvailableAndUpdateStudent(Class clazz, Student student) {
-    Long enrolledStudents = clazz.getEnrolledStudent();
+    Long enrolledStudents = clazz.getEnrolledStudents();
     Long totalStudents = clazz.getTotalStudents();
     if(enrolledStudents < totalStudents) {
       return updateStudentAndUpdateClass(clazz, student);
@@ -120,7 +120,7 @@ public class StudentServiceImpl implements StudentService {
   private Future<String> updateStudentAndUpdateClass(Class clazz, Student student) {
     return studentRepository.update(student.getId(), student)
       .compose(insertedStudent -> {
-        clazz.setEnrolledStudent(clazz.getEnrolledStudent() + 1);
+        clazz.setEnrolledStudents(clazz.getEnrolledStudents() + 1);
         return classRepository.updateOne(clazz.getId(), clazz)
           .map(insertedStudent);
       });
@@ -142,7 +142,7 @@ public class StudentServiceImpl implements StudentService {
         String classId = student.getClassId();
         return classRepository.findById(classId)
           .compose(clazz -> {
-            clazz.setEnrolledStudent(clazz.getEnrolledStudent() - 1);
+            clazz.setEnrolledStudents(clazz.getEnrolledStudents() - 1);
             return classRepository.updateOne(classId, clazz);
           })
           .compose(s -> studentRepository.delete(id));
@@ -164,7 +164,7 @@ public class StudentServiceImpl implements StudentService {
           .id(clazz.getId())
           .className(clazz.getClassName())
           .totalStudents(clazz.getTotalStudents())
-          .enrolledStudents(clazz.getEnrolledStudent())
+          .enrolledStudents(clazz.getEnrolledStudents())
           .build()
       )
       .build();

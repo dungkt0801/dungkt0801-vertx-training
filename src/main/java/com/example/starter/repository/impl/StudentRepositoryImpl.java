@@ -23,7 +23,7 @@ public class StudentRepositoryImpl implements StudentRepository {
   public Future<List<Student>> findAll(JsonObject query) {
     Future<List<Student>> future = Future.future();
 
-    mongoClient.find("students", query, res -> {
+    mongoClient.find(COLLECTION_NAME, query, res -> {
       if (res.succeeded()) {
         future.complete(
           res.result().stream()

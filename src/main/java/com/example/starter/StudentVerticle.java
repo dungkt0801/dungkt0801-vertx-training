@@ -22,7 +22,6 @@ import io.vertx.ext.web.Router;
 
 public class StudentVerticle extends AbstractVerticle {
 
-
   @Override
   public void start(Future<Void> startFuture) throws Exception {
     final ConfigStoreOptions store = new ConfigStoreOptions().setType("env");
